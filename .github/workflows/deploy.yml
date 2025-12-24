@@ -1,0 +1,88 @@
+name: 🚀 Desplegar a Producción
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  PNPM_VERSION: '8.15.0'
+  NODE_VERSION: '18'
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📋 Obtener código
+      uses: actions/checkout@v4
+
+    - name: 🔧 Configurar Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+
+    - name: 📦 Configurar pnpm
+      uses: pnpm/action-setup@v2
+      with:
+        version: ${{ env.PNPM_VERSION }}
+
+    - name: 📋 Obtener directorio de caché de pnpm
+      shell: bash
+      run: |
+        echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+    - name: 📋 Configurar caché de pnpm
+      uses: actions/cache@v3
+      with:
+        path: ${{ env.STORE_PATH }}
+        key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+        restore-keys: |
+          ${{ runner.os }}-pnpm-store-
+
+    - name: 📥 Instalar dependencias
+      run: pnpm install --frozen-lockfile
+
+    - name: 🔍 Lint de código
+      run: pnpm run lint
+
+    - name: 🧪 Ejecutar tests
+      run: pnpm run test
+
+  build-and-deploy:
+    needs: lint-and-test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+    - name: 📋 Obtener código
+      uses: actions/checkout@v4
+
+    - name: 🔧 Configurar Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+
+    - name: 📦 Configurar pnpm
+      uses: pnpm/action-setup@v2
+      with:
+        version: ${{ env.PNPM_VERSION }}
+
+    - name: 📥 Instalar dependencias
+      run: pnpm install --frozen-lockfile
+
+    - name: 🔨 Construir aplicación
+      run: pnpm run build
+      env:
+        VITE_API_URL: ${{ secrets.VITE_API_URL }}
+        VITE_WEBSOCKET_URL: ${{ secrets.VITE_WEBSOCKET_URL }}
+        VITE_APP_URL: ${{ secrets.VITE_APP_URL }}
+
+    - name: 🚀 Desplegar en Vercel
+      uses: amondnet/vercel-action@v25
+      with:
+        vercel-token: ${{ secrets.VERCEL_TOKEN }}
+        vercel-org-id: ${{ secrets.ORG_ID}}
+        vercel-project-id: ${{ secrets.PROJECT_ID}}
+        vercel-args: '--prod'

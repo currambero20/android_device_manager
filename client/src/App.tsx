@@ -1,13 +1,10 @@
-// client/src/App.tsx (VERSION DE AISLAMIENTO)
+// client/src/App.tsx (MÍNIMO ABSOLUTO)
 
-import Home from "./pages/Home"; // Importar solo un componente de página
+import Home from "./pages/Home"; 
 
 function App() {
   return (
-    // Solo renderizar el componente Home directamente
-    <div style={{ backgroundColor: 'white', color: 'black', padding: '20px' }}>
-      <Home />
-    </div>
+    <Home />
   );
 }
 

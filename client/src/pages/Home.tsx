@@ -1,12 +1,9 @@
-// client/src/pages/Home.tsx (TEMPORAL PARA DIAGNÓSTICO)
-
-import React from 'react';
+// client/src/pages/Home.tsx (MÍNIMO ABSOLUTO)
 
 const Home = () => {
   return (
-    <div>
+    <div style={{ backgroundColor: 'white', color: 'black', padding: '20px' }}>
       <h1>¡El despliegue funciona! (Home)</h1>
-      <p>Si ve este texto, el problema está en los proveedores o el enrutamiento.</p>
     </div>
   );
 };

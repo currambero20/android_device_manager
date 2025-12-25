@@ -1,13 +1,35 @@
+import { trpc } from "@/lib/trpc";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { httpBatchLink } from "@trpc/client";
 import { createRoot } from "react-dom/client";
+import superjson from "superjson";
 import App from "./App";
 import "./index.css";
 
-// COMENTAR TEMPORALMENTE LA LÓGICA DE TRPC Y REACT QUERY
-// const queryClient = new QueryClient();
-// const API_URL = import.meta.env.VITE_API_URL || "/api/trpc";
-// const trpcClient = trpc.createClient({ /* ... */ });
+const queryClient = new QueryClient( );
+
+// CORRECCIÓN: Usar la variable de entorno para la URL de la API
+const API_URL = import.meta.env.VITE_API_URL || "/api/trpc";
+
+const trpcClient = trpc.createClient({
+  links: [
+    httpBatchLink({
+      url: API_URL,
+      transformer: superjson,
+      fetch(input, init ) {
+        return globalThis.fetch(input, {
+          ...(init ?? {}),
+          credentials: "include",
+        });
+      },
+    }),
+  ],
+});
 
 createRoot(document.getElementById("root")!).render(
-  // Renderizar solo el componente App
-  <App />
+  <trpc.Provider client={trpcClient} queryClient={queryClient}>
+    <QueryClientProvider client={queryClient}>
+      <App />
+    </QueryClientProvider>
+  </trpc.Provider>
 );

@@ -1,33 +1,36 @@
-          // client/src/App.tsx (VERSION DE AISLAMIENTO DE PROVEEDORES)
+// client/src/App.tsx (MODIFICACIÓN DE LA FUNCIÓN Router)
 
 // ... (todas las importaciones originales)
-import { Toaster } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
-import ErrorBoundary from "./components/ErrorBoundary";
-import { ThemeProvider } from "./contexts/ThemeContext";
 // ... (resto de las importaciones de páginas)
 
 function Router() {
-  // ... (código original de Router)
+  return (
+    <Switch>
+      {/* CORRECCIÓN: Forzar un componente de diagnóstico en línea para la ruta raíz */}
+      <Route path={"/"}>
+        <div style={{ backgroundColor: 'white', color: 'black', padding: '20px' }}>
+          <h1>¡Wouter Funciona!</h1>
+          <p>Si ve este texto, el problema está en el componente Home original.</p>
+        </div>
+      </Route>
+      
+      {/* Dashboard Routes (Mantener el resto de las rutas originales) */}
+      <Route path={"/dashboard"} component={Dashboard} />
+      <Route path={"/devices"} component={Devices} />
+      {/* ... (resto de las rutas) */}
+      
+      <Route path="/404" component={NotFound} />
+      {/* Final fallback route */}
+      <Route component={NotFound} />
+    </Switch>
+  );
 }
 
 function App() {
   return (
-    // Reintroducir solo el Router
+    // Mantener solo el Router
     <Router />
-    
-    /* COMENTAR TEMPORALMENTE LOS PROVEEDORES
-    <ErrorBoundary>
-      <ThemeProvider defaultTheme="dark">
-        <TooltipProvider>
-          <Toaster />
-          <Router />
-        </TooltipProvider>
-      </ThemeProvider>
-    </ErrorBoundary>
-    */
   );
 }
 

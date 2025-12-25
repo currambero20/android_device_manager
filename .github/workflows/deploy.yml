@@ -1,4 +1,4 @@
-name: 🚀 Desplegar a Producción
+name: 🚀 Deploy to Production
 
 on:
   push:
@@ -15,25 +15,25 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - name: 📋 Obtener código
+    - name: 📋 Checkout code
       uses: actions/checkout@v4
 
-    - name: 🔧 Configurar Node.js
+    - name: 🔧 Setup Node.js
       uses: actions/setup-node@v4
       with:
         node-version: ${{ env.NODE_VERSION }}
 
-    - name: 📦 Configurar pnpm
+    - name: 📦 Setup pnpm
       uses: pnpm/action-setup@v2
       with:
         version: ${{ env.PNPM_VERSION }}
 
-    - name: 📋 Obtener directorio de caché de pnpm
+    - name: 📋 Get pnpm store directory
       shell: bash
       run: |
         echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
 
-    - name: 📋 Configurar caché de pnpm
+    - name: 📋 Setup pnpm cache
       uses: actions/cache@v3
       with:
         path: ${{ env.STORE_PATH }}
@@ -41,13 +41,13 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-pnpm-store-
 
-    - name: 📥 Instalar dependencias
+    - name: 📥 Install dependencies
       run: pnpm install --frozen-lockfile
 
-    - name: 🔍 Lint de código
+    - name: 🔍 Lint code
       run: pnpm run lint
 
-    - name: 🧪 Ejecutar tests
+    - name: 🧪 Run tests
       run: pnpm run test
 
   build-and-deploy:
@@ -56,30 +56,30 @@ jobs:
     if: github.ref == 'refs/heads/main'
 
     steps:
-    - name: 📋 Obtener código
+    - name: 📋 Checkout code
       uses: actions/checkout@v4
 
-    - name: 🔧 Configurar Node.js
+    - name: 🔧 Setup Node.js
       uses: actions/setup-node@v4
       with:
         node-version: ${{ env.NODE_VERSION }}
 
-    - name: 📦 Configurar pnpm
+    - name: 📦 Setup pnpm
       uses: pnpm/action-setup@v2
       with:
         version: ${{ env.PNPM_VERSION }}
 
-    - name: 📥 Instalar dependencias
+    - name: 📥 Install dependencies
       run: pnpm install --frozen-lockfile
 
-    - name: 🔨 Construir aplicación
+    - name: 🔨 Build application
       run: pnpm run build
       env:
         VITE_API_URL: ${{ secrets.VITE_API_URL }}
         VITE_WEBSOCKET_URL: ${{ secrets.VITE_WEBSOCKET_URL }}
         VITE_APP_URL: ${{ secrets.VITE_APP_URL }}
 
-    - name: 🚀 Desplegar en Vercel
+    - name: 🚀 Deploy to Vercel
       uses: amondnet/vercel-action@v25
       with:
         vercel-token: ${{ secrets.VERCEL_TOKEN }}
